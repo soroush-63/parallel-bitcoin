@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\chain",
+    "\\src\\consensus",
+    "\\src\\examples",
+    "\\src\\miner"
+  ],
+  "SelectedNode": "\\src\\chain\\block.rs",
+  "PreviewInSolutionExplorer": false
+}
