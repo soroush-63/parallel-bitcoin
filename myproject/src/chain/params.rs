@@ -4,6 +4,7 @@ use bitcoin::hashes::sha256d;
 use bitcoin::Amount;
 use bitcoin::Script;
 use std::time::{SystemTime, UNIX_EPOCH};
+use bitcoin::bitcoin_hashes::Hash;  
 
 /// پارامترهای شبکه موازی
 pub struct ChainParams {
@@ -39,8 +40,8 @@ impl ChainParams {
         // ساخت هدر ساده
         let mut header = BlockHeader {
             version: 1,
-            prev_blockhash: BlockHash::from_slice(&[0u8; 32]).unwrap(), // جنسیس هیچ والد نداره
-            merkle_root: TxMerkleNode::from_raw_hash(sha256d::Hash::hash("genesis".as_bytes())),
+            prev_blockhash: BlockHash::from_hash(&[0u8; 32]), // جنسیس هیچ والد نداره
+            merkle_root: TxMerkleNode::from_hash(sha256d::Hash::hash("genesis".as_bytes()))
             time: timestamp,
             bits: 0x1f0fffff, // سختی پایین
             nonce: 0,

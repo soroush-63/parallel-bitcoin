@@ -3,6 +3,7 @@
 pub mod chain;
 pub mod consensus;
 pub mod miner;
+pub mod metablock;
 
 // Re-export مهم‌ترین typeها
 pub use chain::{ParallelBlock, MetaBlock};
