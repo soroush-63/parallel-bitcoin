@@ -3,7 +3,7 @@ use crate::chain::block::BlockHeader;
 
 pub type Hash = [u8; 32];
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MetaBlock {
     pub version: u32,
     pub prev_meta_hash: Hash,

@@ -1,59 +1,49 @@
-﻿// src/chain/block.rs
-use bitcoin::blockdata::block::BlockHeader;
-use bitcoin::hash_types::BlockHash;
-use bitcoin::hashes::Hash;
+﻿use sha2::{Digest, Sha256};
 
-/// بلوک موازی با chain_id
-#[derive(Debug, Clone)]
-pub struct ParallelBlock {
+// ======= BlockHeader =======
+#[derive(Clone, Debug)]
+pub struct BlockHeader {
+    pub version: u32,
+    pub prev_meta_hash: [u8; 32],
+    pub merkle_root: [u8; 32],
+    pub timestamp: u64,
+    pub difficulty_target: u32,
+    pub nonce: u64,
+}
+
+impl BlockHeader {
+    /// هش بلوک، برای PoW و MetaBlock
+    pub fn hash(&self) -> [u8; 32] {
+        let mut hasher = Sha256::new();
+        hasher.update(self.version.to_le_bytes());
+        hasher.update(self.prev_meta_hash);
+        hasher.update(self.merkle_root);
+        hasher.update(self.timestamp.to_le_bytes());
+        hasher.update(self.difficulty_target.to_le_bytes());
+        hasher.update(self.nonce.to_le_bytes());
+        hasher.finalize().into()
+    }
+}
+
+// ======= Block =======
+#[derive(Clone, Debug)]
+pub struct Block {
     pub header: BlockHeader,
-    pub chain_id: u8, // 0 یا 1
-    // transactions رو موقتاً حذف می‌کنیم تا compile شه
+    pub body: Vec<u8>, // تراکنش‌ها یا داده‌های بلاک
 }
 
-impl ParallelBlock {
-    pub fn new(header: BlockHeader, chain_id: u8) -> Self {
-        Self {
-            header,
-            chain_id,
+impl Default for Block {
+    fn default() -> Self {
+        Block {
+            header: BlockHeader {
+                version: 1,
+                prev_meta_hash: [0u8; 32],
+                merkle_root: [0u8; 32],
+                timestamp: 0,
+                difficulty_target: 2,
+                nonce: 0,
+            },
+            body: vec![],
         }
-    }
-    
-    pub fn hash(&self) -> BlockHash {
-        self.header.block_hash()
-    }
-}
-
-/// متابلوک برای اتصال دو زنجیره موازی
-#[derive(Debug, Clone)]
-pub struct MetaBlock {
-    pub prev_meta_hash: BlockHash,
-    pub block_a_hash: BlockHash,
-    pub block_b_hash: BlockHash,
-    pub timestamp: u32,
-}
-
-impl MetaBlock {
-    pub fn new(prev_meta_hash: BlockHash, block_a_hash: BlockHash, block_b_hash: BlockHash) -> Self {
-        Self {
-            prev_meta_hash,
-            block_a_hash,
-            block_b_hash,
-            timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as u32,
-        }
-    }
-    
-    pub fn hash(&self) -> BlockHash {
-        let data = format!(
-            "{}{}{}{}",
-            self.prev_meta_hash,
-            self.block_a_hash,
-            self.block_b_hash,
-            self.timestamp
-        );
-        bitcoin::hashes::sha256d::Hash::hash(data.as_bytes()).into()
     }
 }
